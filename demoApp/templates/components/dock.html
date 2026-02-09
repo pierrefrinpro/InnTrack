@@ -1,0 +1,84 @@
+<!-- core/templates/components/dock.html -->
+{% load static %}
+
+<nav class="dock-wrapper">
+    <div class="dock">
+        <a href="{% url 'dashboard' %}"
+           class="dock-item {% if active_page == 'dashboard' %}active{% endif %}"
+           title="Dashboard">
+            <div class="dock-icon-wrap">
+                <i data-lucide="layout-dashboard"></i>
+            </div>
+            <span class="dock-label">Tâches</span>
+        </a>
+
+        <div class="dock-separator"></div>
+
+        <a href="{% url 'clients' %}"
+           class="dock-item {% if active_page == 'clients' %}active{% endif %}"
+           title="Clients">
+            <div class="dock-icon-wrap">
+                <i data-lucide="users"></i>
+            </div>
+            <span class="dock-label">Clients</span>
+        </a>
+
+        <a href="{% url 'devis' %}"
+           class="dock-item {% if active_page == 'devis' %}active{% endif %}"
+           title="Devis">
+            <div class="dock-icon-wrap">
+                <i data-lucide="file-text"></i>
+            </div>
+            <span class="dock-label">Devis</span>
+        </a>
+
+        <a href="{% url 'demandes' %}"
+           class="dock-item {% if active_page == 'demandes' %}active{% endif %}"
+           title="Demandes">
+            <div class="dock-icon-wrap">
+                <i data-lucide="map-pin"></i>
+            </div>
+            <span class="dock-label">Demandes</span>
+        </a>
+
+        <div class="dock-separator"></div>
+
+        <a href="{% url 'planning' %}"
+           class="dock-item {% if active_page == 'planning' %}active{% endif %}"
+           title="Planning">
+            <div class="dock-icon-wrap">
+                <i data-lucide="calendar-days"></i>
+            </div>
+            <span class="dock-label">Planning</span>
+        </a>
+
+        <a href="{% url 'documents' %}"
+           class="dock-item {% if active_page == 'documents' %}active{% endif %}"
+           title="Documents">
+            <div class="dock-icon-wrap">
+                <i data-lucide="folder-open"></i>
+            </div>
+            <span class="dock-label">Documents</span>
+        </a>
+
+        <div class="dock-separator"></div>
+
+        <a href="{% url 'stats' %}"
+           class="dock-item {% if active_page == 'stats' %}active{% endif %}"
+           title="Statistiques">
+            <div class="dock-icon-wrap">
+                <i data-lucide="bar-chart-3"></i>
+            </div>
+            <span class="dock-label">Stats</span>
+        </a>
+
+        <a href="{% url 'settings' %}"
+           class="dock-item {% if active_page == 'settings' %}active{% endif %}"
+           title="Paramètres">
+            <div class="dock-icon-wrap">
+                <i data-lucide="settings"></i>
+            </div>
+            <span class="dock-label">Réglages</span>
+        </a>
+    </div>
+</nav>

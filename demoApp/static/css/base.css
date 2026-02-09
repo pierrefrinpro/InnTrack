@@ -1,0 +1,291 @@
+/* core/static/css/base.css */
+
+/* ==================== RESET ==================== */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Background layers */
+    --bg-body: #0f0f1e;
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #1e1e3a;
+    --bg-tertiary: #252545;
+    --bg-hover: #2a2a55;
+
+    /* Borders */
+    --border-color: #2a2a45;
+    --border-light: #333355;
+
+    /* Text */
+    --text-primary: #e8e8f0;
+    --text-secondary: #a0a0b8;
+    --text-muted: #666680;
+    --text-dim: #44445a;
+
+    /* Accent colors */
+    --accent-green: #4CAF50;
+    --accent-green-hover: #45a049;
+    --accent-blue: #4fc3f7;
+    --accent-red: #d32f2f;
+    --accent-orange: #ff9800;
+    --accent-purple: #9c27b0;
+    --accent-teal: #00bcd4;
+    --accent-yellow: #fdd835;
+
+    /* Sizing */
+    --header-height: 48px;
+    --dock-height: 68px;
+    --dock-margin: 16px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-pill: 50px;
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-spring: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-primary);
+    line-height: 1.5;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+.main-content {
+    flex: 1;
+    padding: 16px 20px;
+    padding-bottom: calc(var(--dock-height) + var(--dock-margin) * 2 + 10px);
+    overflow-y: auto;
+    margin-top: var(--header-height);
+}
+
+/* ==================== SCROLLBAR ==================== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ==================== PANELS (Réutilisable partout) ==================== */
+.panel {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    flex-shrink: 0;
+}
+
+.panel-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.panel-title .count {
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+.panel-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.panel-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background-color: var(--accent-green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-green-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    padding: 5px 6px;
+}
+
+.btn-ghost:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-hover);
+}
+
+.btn-sm {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+}
+
+/* ==================== BADGES ==================== */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-size: 0.68rem;
+    font-weight: 500;
+}
+
+.badge-green {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: var(--accent-green);
+}
+
+.badge-orange {
+    background-color: rgba(255, 152, 0, 0.15);
+    color: var(--accent-orange);
+}
+
+.badge-red {
+    background-color: rgba(211, 47, 47, 0.15);
+    color: var(--accent-red);
+}
+
+.badge-purple {
+    background-color: rgba(156, 39, 176, 0.15);
+    color: var(--accent-purple);
+}
+
+/* ==================== TABLES ==================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-tertiary);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.data-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--bg-hover);
+}
+
+.data-table tbody td {
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* ==================== CHECKBOX ==================== */
+input[type="checkbox"] {
+    accent-color: var(--accent-green);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+/* ==================== SELECTION / FOCUS ==================== */
+::selection {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+a {
+    color: var(--accent-orange);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: #ffb74d;
+    text-decoration: underline;
+}

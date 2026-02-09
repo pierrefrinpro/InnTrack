@@ -1,0 +1,48 @@
+<!-- core/templates/base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InnTrack</title>
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dock.css' %}">
+    <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    {% block extra_css %}{% endblock %}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+
+    {% include "components/header.html" %}
+
+    <main class="main-content">
+        {% include "components/messages.html" %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "components/dock.html" %}
+
+    <!-- ==================== MODALES ==================== -->
+    {% include "components/modal.html" %}
+    {% block modals %}{% endblock %}
+
+    <script>lucide.createIcons();</script>
+    <script src="{% static 'js/modal.js' %}"></script>
+    <script src="{% static 'js/dashboard-filter.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+    {% include "components/modal.html" %}
+    {% include "modals/client_form.html" %}
+    {% include "modals/demande_form.html" %}
+    {% include "modals/devis_form.html" %}
+
+</body>
+</html>

@@ -1,0 +1,604 @@
+<!-- core/templates/dashboard/index.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title_suffix %}Dashboard{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+
+    <div class="dashboard-top">
+
+        <!-- CLIENTS -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <i data-lucide="users" style="width:16px;height:16px;"></i>
+                    Clients - <span class="count">{{ clients_count }}</span>
+                </span>
+                <div class="panel-actions">
+                    <!-- ★ Bouton qui ouvre la modale Client -->
+                    <button class="btn btn-primary btn-sm"
+                            data-modal-target="#modalClient">
+                        <i data-lucide="plus" style="width:12px;height:12px;"></i>
+                        Ajouter
+                    </button>
+                    <!-- <button class="btn btn-ghost btn-sm">
+                        <i data-lucide="maximize-2" style="width:14px;height:14px;"></i>
+                    </button> -->
+                </div>
+            </div>
+            <div class="panel-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Prénom</th>
+                            <th>Nom</th>
+                            <th>Type</th>
+                            <th class="th-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                        <tr class="client-row" 
+                        data-client-id="{{ c.pk }}" 
+                        data-client-name="{{ c.firstName }} {{ c.lastName }}"
+                        style="cursor: pointer;">
+                            <td>{{ client.firstName }}</td>
+                            <td>{{ client.lastName }}</td>
+                            <td>
+                                <span class="badge {% if client.type == 'particulier' %}badge-green{% else %}badge-orange{% endif %}">
+                                    {{ client.get_type_display }}
+                                </span>
+                            </td>
+                            <td class="td-actions">
+                                <button class="btn-icon btn-icon-edit" onclick="openEditClientModal({{ client.id }})" title="Modifier">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                        <path d="m15 5 4 4"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-icon btn-icon-delete" onclick="openDeleteClientModal({{ client.id }}, '{{ client.firstName }} {{ client.lastName }}')" title="Supprimer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">
+                                Aucun client
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VISITES -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <i data-lucide="map-pin" style="width:16px;height:16px;"></i>
+                    Visite à programmer - <span class="count">{{ demandes_count }}</span>
+                </span>
+                <div class="panel-actions">
+                    <!-- ★ Bouton qui ouvre la modale Visite -->
+                    <button class="btn btn-primary btn-sm"
+                            data-modal-target="#modalDemande">
+                        <i data-lucide="plus" style="width:12px;height:12px;"></i>
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Type</th>
+                            <th>Date de visite</th>
+                            <th class="th-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for demande in demandes %}
+                        <tr data-client-id="{{ v.client.pk }}">
+                            <td>{{ demande.client }}</td>
+                            <td>{{ demande.type }}</td>
+                            <td>{{ demande.excpectedVisitDate }}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <button class="btn-icon btn-icon-edit" onclick="openEditDemandeModal({{ demande.id }})" title="Modifier">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                            <path d="m15 5 4 4"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon btn-icon-delete" onclick="openDeleteDemande({{ demande.id }}, '{{ demande.client.firstName }} {{ demande.client.lastName }}')" title="Supprimer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">
+                                Aucune demande 
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DEVIS -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">
+                    <i data-lucide="file-text" style="width:16px;height:16px;"></i>
+                    Devis à faire - <span class="count">{{ devis_count }}</span>
+                </span>
+                <div class="panel-actions">
+                    <button class="btn btn-primary btn-sm"
+                            data-modal-target="#modalDevis">
+                        <i data-lucide="plus" style="width:12px;height:12px;"></i>
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Status</th>
+                            <th>Date prévisionnelle d'envoi</th>
+                            <th>Envoyée ?</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDevis">
+                        {% for dev in devis %}
+                        <tr id="devis-row-{{ dev.id }}" data-client-id="{{ dev.client.pk }}">
+                            <td>{{ dev.client }}</td>
+                            <td>{{ dev.status }}</td>
+                            <td>{{ dev.excpectedSentDate|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if dev.sent %}
+                                    <span class="badge badge-success">Oui</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Non</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <!-- Bouton Modifier -->
+                                    <button class="btn-icon btn-icon-edit"
+                                            onclick="openEditDevisModal({{ dev.id }})"
+                                            title="Modifier">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                            <path d="m15 5 4 4"/>
+                                        </svg>
+                                    </button>
+                                    <!-- Bouton Supprimer -->
+                                    <button class="btn-icon btn-icon-delete" 
+                                            onclick="openDeleteDevisModal({{ dev.id }}, '{{ dev.client.firstName }} {{ dev.client.lastName }}')" 
+                                            title="Supprimer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                        </svg>
+                                    </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">
+                                Aucun devis
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="dashboard-bottom">
+
+        <!-- Chart -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Avancement des devis</span>
+            </div>
+            <div class="panel-body">
+                <div class="chart-section">
+                    <canvas id="chartDevisStatut"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendrier Visites -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Calendrier des visites</span>
+                <div class="panel-actions">
+                    <button class="btn btn-primary btn-sm" data-modal-target="#modalDemande">
+                        <i data-lucide="plus" style="width:12px;height:12px;"></i>
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <!-- ★ Le calendrier se génère ici -->
+                <div class="calendar-wrapper" id="calendarVisites"></div>
+        
+                <div class="card-table-wrap">
+                    <table class="card-table">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyVisites">
+                            {% for v in demandes %}
+                            <!-- ★ data-date doit matcher le format YYYY-MM-DD -->
+                            <tr data-date="{{ v.excpectedVisitDate|date:'Y-m-d' }}">
+                                <td>{{ v.client.firstName }} {{ v.client.lastName }}</td>
+                                <td>{{ v.excpectedVisitDate|date:'d/m/Y' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendrier Devis -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Calendrier des devis</span>
+                <div class="panel-actions">
+                    <button class="btn btn-primary btn-sm"
+                            data-modal-target="#modalDevis">
+                        <i data-lucide="plus" style="width:12px;height:12px;"></i>
+                        Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <!-- ★ Le calendrier se génère ici -->
+                <div class="calendar-wrapper" id="calendarDevis"></div>
+                        
+                <div class="card-table-wrap">
+                    <table class="card-table">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyDevis">
+                            {% for d in devis %}
+                            <!-- ★ data-date doit matcher le format YYYY-MM-DD -->
+                            <tr data-date="{{ d.excpectedSentDate|date:'Y-m-d' }}">
+                                <td>{{ d.client.firstName }} {{ d.client.lastName }}</td>
+                                <td>{{ d.excpectedSentDate|date:'d/m/Y' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- En bas de dashboard/index.html, après tout le HTML -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('chartDevisStatut');
+        if (!ctx) return;
+    
+        // Enregistrer le plugin
+        Chart.register(ChartDataLabels);
+    
+        const labels = {{ statut_labels|safe }};
+        const counts = {{ statut_counts|safe }};
+    
+        const colorMap = {
+            'A FAIRE':    { bg: 'rgba(239, 68, 68, 0.8)',   border: '#ef4444' },
+            'EN COURS':   { bg: 'rgba(251, 191, 36, 0.8)',  border: '#fbbf24' },
+            'ENVOYE':     { bg: 'rgba(59, 130, 246, 0.8)',  border: '#3b82f6' },
+            'VALIDE':     { bg: 'rgba(34, 197, 94, 0.8)',   border: '#22c55e' },
+            'REFUSE':     { bg: 'rgba(156, 163, 175, 0.8)', border: '#9ca3af' },
+        };
+    
+        const bgColors = labels.map(l => colorMap[l]?.bg || 'rgba(139, 92, 246, 0.8)');
+        const borderColors = labels.map(l => colorMap[l]?.border || '#8b5cf6');
+    
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: bgColors,
+                    borderColor: borderColors,
+                    borderWidth: 2,
+                    hoverOffset: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#94a3b8',
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#f8fafc',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(148, 163, 184, 0.2)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = Math.round((context.parsed / total) * 100);
+                                return ` ${context.label}: ${context.parsed} (${pct}%)`;
+                            }
+                        }
+                    },
+                    // ===== DATALABELS =====
+                    datalabels: {
+                        color: '#ffffff',
+                        font: {
+                            weight: 'bold',
+                            size: 14,
+                        },
+                        formatter: function(value, context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = Math.round((value / total) * 100);
+                            // Masquer si la part est trop petite
+                            if (pct < 5) return '';
+                            return value;
+                        },
+                        anchor: 'center',
+                        align: 'center',
+                        textShadowBlur: 4,
+                        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                    }
+                },
+                cutout: '55%',
+            }
+        });
+    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var datesVisites = [];
+        
+            try {
+                datesVisites = JSON.parse('{{ dates_visites_json|escapejs }}');
+            } catch(e) {
+                console.error('Erreur parse dates_visites:', e);
+            }
+        
+            var datesDevis = [];
+            try {
+                datesDevis = JSON.parse('{{ dates_devis_json|escapejs }}');
+            } catch(e) {
+                console.error('Erreur parse dates_devis:', e);
+            }
+        
+            // ============================
+            // Classe MiniCalendar
+            // ============================
+            class MiniCalendar {
+                constructor(containerId, markedDates, options = {}) {
+                    this.container = document.getElementById(containerId);
+                    if (!this.container) {
+                        console.error('Container introuvable:', containerId);
+                        return;
+                    }
+        
+                    this.markedDates = new Set(markedDates);
+                    this.color       = options.color || 'blue';
+                    this.tbodyId     = options.tbodyId || null;
+                    this.today       = new Date();
+                    this.current     = new Date(this.today.getFullYear(), this.today.getMonth(), 1);
+                    this.selected    = null;
+        
+                    this.render();
+                }
+        
+                render() {
+                    this.container.innerHTML = '';
+        
+                    // --- Navigation ---
+                    var nav = document.createElement('div');
+                    nav.className = 'calendar-nav';
+        
+                    var btnPrev = document.createElement('button');
+                    btnPrev.innerHTML = '&#8249;';
+                    btnPrev.addEventListener('click', () => this.changeMonth(-1));
+        
+                    var btnNext = document.createElement('button');
+                    btnNext.innerHTML = '&#8250;';
+                    btnNext.addEventListener('click', () => this.changeMonth(1));
+        
+                    var title = document.createElement('span');
+                    title.className = 'calendar-nav-title';
+                    title.textContent = this.current.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        
+                    nav.appendChild(btnPrev);
+                    nav.appendChild(title);
+                    nav.appendChild(btnNext);
+                    this.container.appendChild(nav);
+        
+                    // --- Grille ---
+                    var grid = document.createElement('div');
+                    grid.className = 'calendar-grid';
+        
+                    // En-têtes
+                    var dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+                    dayNames.forEach(function(d) {
+                        var h = document.createElement('div');
+                        h.className = 'day-header';
+                        h.textContent = d;
+                        grid.appendChild(h);
+                    });
+        
+                    // Premier jour du mois
+                    var year = this.current.getFullYear();
+                    var month = this.current.getMonth();
+                    var firstDay = new Date(year, month, 1);
+                    var lastDay = new Date(year, month + 1, 0);
+        
+                    // Jour de la semaine du 1er (0=dim → on veut 0=lun)
+                    var startDow = (firstDay.getDay() + 6) % 7; // 0=Lun
+        
+                    // Jours du mois précédent
+                    var prevMonthLast = new Date(year, month, 0).getDate();
+                    for (var i = startDow - 1; i >= 0; i--) {
+                        var cell = document.createElement('div');
+                        cell.className = 'day-cell other-month';
+                        cell.textContent = prevMonthLast - i;
+                        grid.appendChild(cell);
+                    }
+        
+                    // Jours du mois
+                    var self = this;
+                    for (var day = 1; day <= lastDay.getDate(); day++) {
+                        var cell = document.createElement('div');
+                        cell.className = 'day-cell';
+                        cell.textContent = day;
+        
+                        var dateStr = this.formatDate(new Date(year, month, day));
+        
+                        // Aujourd'hui
+                        if (dateStr === this.formatDate(this.today)) {
+                            cell.classList.add('today');
+                        }
+        
+                        // Événement marqué
+                        if (this.markedDates.has(dateStr)) {
+                            cell.classList.add('has-event');
+                            if (this.color === 'orange') {
+                                cell.classList.add('orange');
+                            }
+                            // Clic
+                            (function(ds, c) {
+                                c.addEventListener('click', function() {
+                                    if (self.selected === ds) {
+                                        self.selected = null;
+                                        self.filterTable(null);
+                                    } else {
+                                        self.selected = ds;
+                                        self.filterTable(ds);
+                                    }
+                                    self.render();
+                                });
+                            })(dateStr, cell);
+                        }
+        
+                        // Sélectionné
+                        if (this.selected && dateStr === this.selected) {
+                            cell.classList.add('selected');
+                        }
+        
+                        grid.appendChild(cell);
+                    }
+        
+                    // Jours du mois suivant
+                    var totalCells = startDow + lastDay.getDate();
+                    var remaining = (7 - (totalCells % 7)) % 7;
+                    for (var i = 1; i <= remaining; i++) {
+                        var cell = document.createElement('div');
+                        cell.className = 'day-cell other-month';
+                        cell.textContent = i;
+                        grid.appendChild(cell);
+                    }
+        
+                    this.container.appendChild(grid);
+                }
+        
+                filterTable(dateStr) {
+                    if (!this.tbodyId) return;
+                    var tbody = document.getElementById(this.tbodyId);
+                    if (!tbody) return;
+        
+                    var rows = tbody.querySelectorAll('tr[data-date]');
+                    rows.forEach(function(row) {
+                        if (!dateStr) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = (row.getAttribute('data-date') === dateStr) ? '' : 'none';
+                        }
+                    });
+                }
+        
+                changeMonth(delta) {
+                    this.current.setMonth(this.current.getMonth() + delta);
+                    this.selected = null;
+                    this.filterTable(null);
+                    this.render();
+                }
+        
+                formatDate(date) {
+                    var y = date.getFullYear();
+                    var m = String(date.getMonth() + 1).padStart(2, '0');
+                    var d = String(date.getDate()).padStart(2, '0');
+                    return y + '-' + m + '-' + d;
+                }
+            }
+        
+            // ============================
+            // Initialisation
+            // ============================
+            new MiniCalendar('calendarVisites', datesVisites, {
+                color: 'orange',
+                tbodyId: 'tbodyVisites'
+            });
+        
+            new MiniCalendar('calendarDevis', datesDevis, {
+                color: 'blue',
+                tbodyId: 'tbodyDevis'
+            });
+        
+        });
+        </script>      
+
+{% endblock %}

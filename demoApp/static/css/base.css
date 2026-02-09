@@ -289,3 +289,18 @@ a:hover {
     color: #ffb74d;
     text-decoration: underline;
 }
+
+.modal.modal-danger .modal-header {
+    background: #dc3545;
+    color: white;
+}
+
+.modal.modal-danger .modal-header .modal-close {
+    color: white;
+}
+
+.modal.modal-danger .text-danger {
+    color: #dc3545;
+    font-weight: 500;
+    margin-top: 8px;
+}

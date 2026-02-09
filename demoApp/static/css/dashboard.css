@@ -736,3 +736,47 @@ tr.filtered-out {
 .calendar-grid .day-cell.selected::after {
     background: #fff !important;
 }
+
+/* ===== ACTIONS RAPIDES ===== */
+.th-actions {
+    width: 80px;
+    text-align: center;
+}
+
+.td-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.btn-icon-edit {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-icon-edit:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+}
+
+.btn-icon-delete {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.btn-icon-delete:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}

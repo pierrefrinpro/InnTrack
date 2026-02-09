@@ -532,3 +532,23 @@
         grid-template-columns: 1fr;
     }
 }
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal {
+    z-index: 1000;  /* au-dessus du backdrop */
+}

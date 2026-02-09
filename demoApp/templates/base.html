@@ -34,6 +34,12 @@
 
     <script>lucide.createIcons();</script>
     <script src="{% static 'js/modal.js' %}"></script>
+    <script src="{% static 'js/modals/clientEdit.js' %}"></script>
+    <script src="{% static 'js/modals/clientDelete.js' %}"></script>
+    <script src="{% static 'js/modals/demandeDelete.js' %}"></script>
+    <script src="{% static 'js/modals/demandeEdit.js' %}"></script>
+    <script src="{% static 'js/modals/devisDelete.js' %}"></script>
+    <script src="{% static 'js/modals/devisEdit.js' %}"></script>
     <script src="{% static 'js/dashboard-filter.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -43,6 +49,12 @@
     {% include "modals/client_form.html" %}
     {% include "modals/demande_form.html" %}
     {% include "modals/devis_form.html" %}
+    {% include "modals/client_edit.html" %}
+    {% include "modals/client_delete.html" %}
+    {% include 'modals/demande_delete.html' %}
+    {% include 'modals/demande_edit.html' %}
+    {% include 'modals/devis_delete.html' %}
+    {% include 'modals/devis_edit.html' %}
 
 </body>
 </html>

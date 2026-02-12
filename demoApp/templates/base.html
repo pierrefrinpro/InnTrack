@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'css/header.css' %}">
     <link rel="stylesheet" href="{% static 'css/dock.css' %}">
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
+    <link rel="stylesheet" href="{% static 'css/list-page.css' %}">
     {% block extra_css %}{% endblock %}
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,31 +31,56 @@
 
     <!-- ==================== MODALES ==================== -->
     {% include "components/modal.html" %}
+
+    {% include "modals/client/client_edit.html" %}
+    {% include "modals/client/client_delete.html" %}
+    {% include "modals/client/client_form.html" %}
+
+    {% include "modals/demande/demande_form.html" %}
+    {% include "modals/demande/demande_delete.html" %}
+    {% include "modals/demande/demande_edit.html" %}
+
+    {% include "modals/devis/devis_form.html" %}
+    {% include "modals/devis/devis_delete.html" %}
+    {% include "modals/devis/devis_edit.html" %}
+
+    {% include "modals/travaux/travaux_form.html" %}
+    {% include "modals/travaux/travaux_delete.html" %}
+    {% include "modals/travaux/travaux_edit.html" %}
+
+    {% include "modals/facture/facture_form.html" %}
+    {% include "modals/facture/facture_delete.html" %}
+    {% include "modals/facture/facture_edit.html" %}
+
     {% block modals %}{% endblock %}
 
+    <!-- ==================== SCRIPTS ==================== -->
     <script>lucide.createIcons();</script>
-    <script src="{% static 'js/modal.js' %}"></script>
-    <script src="{% static 'js/modals/clientEdit.js' %}"></script>
-    <script src="{% static 'js/modals/clientDelete.js' %}"></script>
-    <script src="{% static 'js/modals/demandeDelete.js' %}"></script>
-    <script src="{% static 'js/modals/demandeEdit.js' %}"></script>
-    <script src="{% static 'js/modals/devisDelete.js' %}"></script>
-    <script src="{% static 'js/modals/devisEdit.js' %}"></script>
+    <script src="{% static 'js/modals/modal.js' %}"></script>
+
+    <script src="{% static 'js/modals/client/clientEdit.js' %}"></script>
+    <script src="{% static 'js/modals/client/clientDelete.js' %}"></script>
+
+    <script src="{% static 'js/modals/demande/demandeDelete.js' %}"></script>
+    <script src="{% static 'js/modals/demande/demandeEdit.js' %}"></script>
+
+    <script src="{% static 'js/modals/devis/devisDelete.js' %}"></script>
+    <script src="{% static 'js/modals/devis/devisEdit.js' %}"></script>
+
+    <script src="{% static 'js/modals/travaux/travauxDelete.js' %}"></script>
+    <script src="{% static 'js/modals/travaux/travauxEdit.js' %}"></script>
+
+    <script src="{% static 'js/modals/facture/factureDelete.js' %}"></script>
+    <script src="{% static 'js/modals/facture/factureEdit.js' %}"></script>
+
     <script src="{% static 'js/dashboard-filter.js' %}"></script>
+    
+    <script src="{% static 'js/planning.js' %}"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-    
+
     {% block extra_js %}{% endblock %}
-    {% include "components/modal.html" %}
-    {% include "modals/client_form.html" %}
-    {% include "modals/demande_form.html" %}
-    {% include "modals/devis_form.html" %}
-    {% include "modals/client_edit.html" %}
-    {% include "modals/client_delete.html" %}
-    {% include 'modals/demande_delete.html' %}
-    {% include 'modals/demande_edit.html' %}
-    {% include 'modals/devis_delete.html' %}
-    {% include 'modals/devis_edit.html' %}
 
 </body>
 </html>

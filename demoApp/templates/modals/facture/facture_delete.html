@@ -1,0 +1,19 @@
+<div class="modal-backdrop" id="deleteFactureBackdrop"></div>
+
+<div class="modal modal-danger" id="deleteFactureModal">
+    <div class="modal-header">
+        <h3>🗑️ Supprimer la facture</h3>
+        <button class="modal-close" onclick="closeDeleteFacture()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer la facture de <strong id="deleteFactureClientName"></strong> ?</p>
+        <p class="text-danger">Cette action est irréversible.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDeleteFacture()">Annuler</button>
+        <form id="deleteFactureForm" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+    </div>
+</div>

@@ -14,7 +14,7 @@
 
         <div class="dock-separator"></div>
 
-        <a href="{% url 'clients' %}"
+        <a href="{% url 'clients_list' %}"
            class="dock-item {% if active_page == 'clients' %}active{% endif %}"
            title="Clients">
             <div class="dock-icon-wrap">
@@ -23,7 +23,16 @@
             <span class="dock-label">Clients</span>
         </a>
 
-        <a href="{% url 'devis' %}"
+        <a href="{% url 'demandes_list' %}"
+           class="dock-item {% if active_page == 'demandes' %}active{% endif %}"
+           title="Demandes">
+            <div class="dock-icon-wrap">
+                <i data-lucide="map-pin"></i>
+            </div>
+            <span class="dock-label">Demandes</span>
+        </a>
+
+        <a href="{% url 'devis_list' %}"
            class="dock-item {% if active_page == 'devis' %}active{% endif %}"
            title="Devis">
             <div class="dock-icon-wrap">
@@ -32,13 +41,13 @@
             <span class="dock-label">Devis</span>
         </a>
 
-        <a href="{% url 'demandes' %}"
-           class="dock-item {% if active_page == 'demandes' %}active{% endif %}"
-           title="Demandes">
+        <a href="{% url 'travaux_list' %}"
+           class="dock-item {% if active_page == 'travaux' %}active{% endif %}"
+           title="Travaux">
             <div class="dock-icon-wrap">
-                <i data-lucide="map-pin"></i>
+                <i data-lucide="traffic-cone"></i>
             </div>
-            <span class="dock-label">Demandes</span>
+            <span class="dock-label">Travaux</span>
         </a>
 
         <div class="dock-separator"></div>
@@ -52,13 +61,13 @@
             <span class="dock-label">Planning</span>
         </a>
 
-        <a href="{% url 'documents' %}"
-           class="dock-item {% if active_page == 'documents' %}active{% endif %}"
-           title="Documents">
+        <a href="{% url 'factures_list' %}"
+           class="dock-item {% if active_page == 'facture' %}active{% endif %}"
+           title="Factures">
             <div class="dock-icon-wrap">
-                <i data-lucide="folder-open"></i>
+                <i data-lucide="receipt-euro"></i>
             </div>
-            <span class="dock-label">Documents</span>
+            <span class="dock-label">Factures</span>
         </a>
 
         <div class="dock-separator"></div>

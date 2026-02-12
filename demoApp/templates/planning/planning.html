@@ -1,0 +1,124 @@
+<!-- core/templates/pages/planning.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/planning.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="planning-layout">
+
+    <!-- ==================== CALENDRIER ==================== -->
+    <div class="planning-calendar">
+        <div class="calendar-header">
+            <button class="cal-nav-btn" id="calPrev">
+                <i data-lucide="chevron-left"></i>
+            </button>
+            <h2 class="cal-month-title" id="calTitle">Janvier 2025</h2>
+            <button class="cal-nav-btn" id="calNext">
+                <i data-lucide="chevron-right"></i>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="calToday">Aujourd'hui</button>
+        </div>
+
+        <div class="calendar-grid">
+            <div class="cal-weekdays">
+                <div class="cal-weekday">Lun</div>
+                <div class="cal-weekday">Mar</div>
+                <div class="cal-weekday">Mer</div>
+                <div class="cal-weekday">Jeu</div>
+                <div class="cal-weekday">Ven</div>
+                <div class="cal-weekday">Sam</div>
+                <div class="cal-weekday">Dim</div>
+            </div>
+            <div class="cal-days" id="calDays">
+                <!-- JS remplit ici -->
+            </div>
+        </div>
+
+        <!-- Légende -->
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <span class="legend-dot legend-dot--demande"></span>
+                Demandes
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot legend-dot--devis"></span>
+                Devis
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot legend-dot--travaux"></span>
+                Travaux
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== FILTRES ==================== -->
+    <div class="planning-sidebar">
+        <div class="sidebar-section">
+            <h3 class="sidebar-title">
+                <i data-lucide="filter" style="width:16px;height:16px;"></i>
+                Filtres
+            </h3>
+            <button class="btn btn-ghost btn-sm" id="resetFilters">
+                <i data-lucide="x" style="width:12px;height:12px;"></i>
+                Réinitialiser
+            </button>
+        </div>
+
+        <!-- Type d'objet -->
+        <div class="filter-group">
+            <label class="filter-label">Afficher</label>
+            <div class="filter-checks">
+                <label class="check-item">
+                    <input type="checkbox" class="filter-cb" data-filter="type" value="demande" checked>
+                    <span class="check-dot check-dot--demande"></span>
+                    Demandes
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" class="filter-cb" data-filter="type" value="devis" checked>
+                    <span class="check-dot check-dot--devis"></span>
+                    Devis
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" class="filter-cb" data-filter="type" value="travaux" checked>
+                    <span class="check-dot check-dot--travaux"></span>
+                    Travaux
+                </label>
+            </div>
+        </div>
+
+        <!-- Client -->
+        <div class="filter-group">
+            <label class="filter-label">Client</label>
+            <select class="filter-select" id="filterClient">
+                <option value="">Tous les clients</option>
+                {% for client in clients %}
+                <option value="{{ client.id }}">{{ client.firstName }} {{ client.lastName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <!-- Résumé du jour sélectionné -->
+        <div class="sidebar-section" style="margin-top:24px;">
+            <h3 class="sidebar-title">
+                <i data-lucide="calendar" style="width:16px;height:16px;"></i>
+                <span id="selectedDayTitle">Aujourd'hui</span>
+            </h3>
+        </div>
+        <div class="day-events" id="dayEvents">
+            <p class="day-events-empty">Sélectionnez un jour pour voir les événements</p>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    window.PLANNING_EVENTS = {{ events_json|safe }};
+</script>
+{% endblock %}

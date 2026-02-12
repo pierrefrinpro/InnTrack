@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Travaux{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/list-page.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="list-page">
+
+    <!-- ===== HEADER ===== -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1>
+                <i data-lucide="traffic-cone"></i>
+                Travaux
+            </h1>
+            <span class="record-count">{{ travaux_list|length }} travaux</span>
+        </div>
+        <div class="page-header-right">
+            <button class="btn btn-primary" data-modal-target="#modalTravaux">
+                <i data-lucide="plus" style="width:16px;height:16px;"></i>
+                Nouveau travaux
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== BARRE DE FILTRES ===== -->
+    <div class="filters-bar">
+        <form method="get" class="filters-form">
+
+            <div class="filter-group">
+                <label>Client</label>
+                <select name="client" class="filter-select">
+                    <option value="">Tous les clients</option>
+                    {% for c in clients %}
+                    <option value="{{ c.pk }}" {% if current_filters.client == c.pk|stringformat:"d" %}selected{% endif %}>
+                        {{ c.firstName }} {{ c.lastName }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label>Terminé</label>
+                <select name="sent" class="filter-select">
+                    <option value="">Tous</option>
+                    <option value="true" {% if current_filters.terminated == 'true' %}selected{% endif %}>Oui</option>
+                    <option value="false" {% if current_filters.terminated == 'false' %}selected{% endif %}>Non</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Du</label>
+                <input type="date" name="date_from" class="filter-input" value="{{ current_filters.date_from }}">
+            </div>
+
+            <div class="filter-group">
+                <label>Au</label>
+                <input type="date" name="date_to" class="filter-input" value="{{ current_filters.date_to }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-filter">
+                    <i data-lucide="search" style="width:14px;height:14px;"></i>
+                    Filtrer
+                </button>
+                <a href="{% url 'travaux_list' %}" class="btn btn-filter-reset">
+                    <i data-lucide="x" style="width:14px;height:14px;"></i>
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ===== CONTENU : TABLE + PANEL ===== -->
+    <div class="list-content">
+
+        <div class="list-table-wrapper">
+            <table class="list-table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Demande liée</th>
+                        <th>Devis lié</th>
+                        <th>Date de début</th>
+                        <th>Terminé</th>
+                        <th>Date de fin</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trav in travaux_list %}
+                    <tr class="list-row" data-id="{{ trav.id }}" onclick="openTravauxPanel({{ trav.id }}, event)">
+                        <td>
+                            <div class="cell-main">{{ trav.client.firstName }} {{ trav.client.lastName }}</div>
+                            {% if trav.client.company %}<div class="cell-sub">{{ trav.client.company }}</div>{% endif %}
+                        </td>
+                        <td>
+                            {% if trav.demande %}
+                                <span class="link-badge">Demande #{{ trav.demande.id }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if trav.devis %}
+                                <span class="link-badge">Devis #{{ trav.devis.id }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ trav.startDate|date:"d/m/Y"|default:"—" }}</td>
+                        <td>
+                            {% if trav.terminated %}
+                                <span class="badge badge-success"><i data-lucide="check" style="width:12px;height:12px;"></i> Oui</span>
+                            {% else %}
+                                <span class="badge badge-warning"><i data-lucide="clock" style="width:12px;height:12px;"></i> Non</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ trav.endDate|date:"d/m/Y"|default:"—" }}</td>
+                        <td>
+                            <div class="table-actions" onclick="event.stopPropagation()">
+                                <button class="btn-icon btn-icon-edit" onclick="openEditTravauxModal({{ trav.id }})" title="Modifier">
+                                    <i data-lucide="pencil" style="width:15px;height:15px;"></i>
+                                </button>
+                                <button class="btn-icon btn-icon-delete"
+                                        onclick="openDeleteTravauxModal({{ trav.id }}, '{{ trav.client.firstName }} {{ trav.client.lastName }}')"
+                                        title="Supprimer">
+                                    <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i data-lucide="traffic-cone" style="width:48px;height:48px;"></i>
+                            <p>Aucun travaux trouvé</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PANEL LATÉRAL DÉTAIL -->
+        <div class="detail-panel" id="travauxDetailPanel">
+            <div class="panel-header-detail">
+                <h3 id="travauxPanelTitle">Détail des travaux</h3>
+                <button class="btn-icon" onclick="closeTravauxPanel()">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+            <div class="panel-body-detail" id="travauxPanelBody"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/travaux-list.js' %}"></script>
+{% endblock %}

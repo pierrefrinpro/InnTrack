@@ -112,7 +112,12 @@
                     <tbody>
                         {% for demande in demandes %}
                         <tr data-client-id="{{ v.client.pk }}">
-                            <td>{{ demande.client }}</td>
+                            <td>        
+                                {% if demande.color_code %}
+                                    <span class="dot dot-{{ demande.color_code }}"></span>
+                                {% endif %}
+                                {{ demande.client }}
+                            </td>
                             <td>{{ demande.type }}</td>
                             <td>{{ demande.excpectedVisitDate }}</td>
                             <td>
@@ -175,7 +180,12 @@
                     <tbody id="tbodyDevis">
                         {% for dev in devis %}
                         <tr id="devis-row-{{ dev.id }}" data-client-id="{{ dev.client.pk }}">
-                            <td>{{ dev.client }}</td>
+                            <td>
+                                {% if dev.color_code %}
+                                    <span class="dot dot-{{ dev.color_code }}"></span>
+                                {% endif %}
+                                {{ dev.client }}
+                            </td>
                             <td>{{ dev.status }}</td>
                             <td>{{ dev.excpectedSentDate|date:"d/m/Y" }}</td>
                             <td>
@@ -330,11 +340,10 @@
         const counts = {{ statut_counts|safe }};
     
         const colorMap = {
-            'A FAIRE':    { bg: 'rgba(239, 68, 68, 0.8)',   border: '#ef4444' },
-            'EN COURS':   { bg: 'rgba(251, 191, 36, 0.8)',  border: '#fbbf24' },
-            'ENVOYE':     { bg: 'rgba(59, 130, 246, 0.8)',  border: '#3b82f6' },
-            'VALIDE':     { bg: 'rgba(34, 197, 94, 0.8)',   border: '#22c55e' },
-            'REFUSE':     { bg: 'rgba(156, 163, 175, 0.8)', border: '#9ca3af' },
+            'A faire':              { bg: 'rgba(9, 130, 246, 0.8)',   border: '#3b82f6' },
+            'En attente client':    { bg: 'rgba(251, 191, 36, 0.8)',  border: '#fbbf24' },
+            'Accepté':              { bg: 'rgba(34, 197, 94, 0.8)',  border: '#22c55e' },
+            'Refusé':               { bg: 'rgba(5239, 68, 68, 0.8)',   border: '#ef4444' }
         };
     
         const bgColors = labels.map(l => colorMap[l]?.bg || 'rgba(139, 92, 246, 0.8)');

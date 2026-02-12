@@ -1,0 +1,19 @@
+<div class="modal-backdrop" id="deleteTravauxBackdrop"></div>
+
+<div class="modal modal-danger" id="deleteTravauxModal">
+    <div class="modal-header">
+        <h3>🗑️ Supprimer la réalisation</h3>
+        <button class="modal-close" onclick="closeTravauxTravaux()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer la réalisation de <strong id="deleteTravauxClientName"></strong> ?</p>
+        <p class="text-danger">Cette action est irréversible.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDeleteTravaux()">Annuler</button>
+        <form id="deleteTravauxForm" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Supprimer</button>
+        </form>
+    </div>
+</div>

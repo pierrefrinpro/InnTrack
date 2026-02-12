@@ -1,0 +1,54 @@
+<!-- ═══════════════ MODAL MODIFIER DEVIS ═══════════════ -->
+<!-- ═══ OVERLAY EDIT DEVIS ═══ -->
+<div id="editDevisOverlay" class="modal-overlay"></div>
+
+<!-- ═══ MODAL EDIT DEVIS ═══ -->
+<div id="editDevisModal" class="modal">
+    <div class="modal-header">
+        <div class="modal-header-left">
+            <div class="modal-icon icon-blue">
+                <i data-lucide="pencil"></i>
+            </div>
+            <div>
+                <h3 class="modal-title">Modifier le devis</h3>
+                <p class="modal-subtitle">Mettre à jour les informations</p>
+            </div>
+        </div>
+        <button class="modal-close" onclick="closeEditDevisModal()">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+
+    <!-- ═══ FORM avec ID caché ═══ -->
+    <form id="editDevisForm" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="editDevisId" name="devis_id" value="">
+
+        <div class="modal-body">
+            <div class="form-grid">
+                {% for field in edit_devis_form %}
+                <div class="form-group">
+                    <label class="form-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="required">*</span>
+                        {% endif %}
+                    </label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-ghost" onclick="closeEditDevisModal()">Annuler</button>
+            <button type="submit" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Enregistrer
+            </button>
+        </div>
+    </form>
+</div>

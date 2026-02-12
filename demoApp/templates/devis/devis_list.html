@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Devis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/list-page.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="list-page">
+
+    <!-- ===== HEADER ===== -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1>
+                <i data-lucide="file-text"></i>
+                Devis
+            </h1>
+            <span class="record-count">{{ devis_list|length }} devis</span>
+        </div>
+        <div class="page-header-right">
+            <button class="btn btn-primary" data-modal-target="#modalDevis">
+                <i data-lucide="plus" style="width:16px;height:16px;"></i>
+                Nouveau devis
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== BARRE DE FILTRES ===== -->
+    <div class="filters-bar">
+        <form method="get" class="filters-form">
+
+            <div class="filter-group">
+                <label>Client</label>
+                <select name="client" class="filter-select">
+                    <option value="">Tous les clients</option>
+                    {% for c in clients %}
+                    <option value="{{ c.pk }}" {% if current_filters.client == c.pk|stringformat:"d" %}selected{% endif %}>
+                        {{ c.firstName }} {{ c.lastName }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Statut</label>
+                <select name="status" class="filter-select">
+                    <option value="">Tous</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Envoyé</label>
+                <select name="sent" class="filter-select">
+                    <option value="">Tous</option>
+                    <option value="true" {% if current_filters.sent == 'true' %}selected{% endif %}>Oui</option>
+                    <option value="false" {% if current_filters.sent == 'false' %}selected{% endif %}>Non</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Du</label>
+                <input type="date" name="date_from" class="filter-input" value="{{ current_filters.date_from }}">
+            </div>
+
+            <div class="filter-group">
+                <label>Au</label>
+                <input type="date" name="date_to" class="filter-input" value="{{ current_filters.date_to }}">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-filter">
+                    <i data-lucide="search" style="width:14px;height:14px;"></i>
+                    Filtrer
+                </button>
+                <a href="{% url 'devis_list' %}" class="btn btn-filter-reset">
+                    <i data-lucide="x" style="width:14px;height:14px;"></i>
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ===== CONTENU : TABLE + PANEL ===== -->
+    <div class="list-content">
+
+        <div class="list-table-wrapper">
+            <table class="list-table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Demande liée</th>
+                        <th>Statut</th>
+                        <th>Date prév. envoi</th>
+                        <th>Envoyé</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dev in devis_list %}
+                    <tr class="list-row" data-id="{{ dev.id }}" onclick="openDevisPanel({{ dev.id }}, event)">
+                        <td>
+                            <div class="cell-main">{{ dev.client.firstName }} {{ dev.client.lastName }}</div>
+                            {% if dev.client.company %}<div class="cell-sub">{{ dev.client.company }}</div>{% endif %}
+                        </td>
+                        <td>
+                            {% if dev.demande %}
+                                <span class="link-badge">Demande #{{ dev.demande.id }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ dev.status|lower }}">
+                                {{ dev.get_status_display|default:dev.status }}
+                            </span>
+                        </td>
+                        <td>{{ dev.excpectedSentDate|date:"d/m/Y"|default:"—" }}</td>
+                        <td>
+                            {% if dev.sent %}
+                                <span class="badge badge-success"><i data-lucide="check" style="width:12px;height:12px;"></i> Oui</span>
+                            {% else %}
+                                <span class="badge badge-warning"><i data-lucide="clock" style="width:12px;height:12px;"></i> Non</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions" onclick="event.stopPropagation()">
+                                <button class="btn-icon btn-icon-edit" onclick="openEditDevisModal({{ dev.id }})" title="Modifier">
+                                    <i data-lucide="pencil" style="width:15px;height:15px;"></i>
+                                </button>
+                                <button class="btn-icon btn-icon-delete"
+                                        onclick="openDeleteDevisModal({{ dev.id }}, '{{ dev.client.firstName }} {{ dev.client.lastName }}')"
+                                        title="Supprimer">
+                                    <i data-lucide="trash-2" style="width:15px;height:15px;"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i data-lucide="file-text" style="width:48px;height:48px;"></i>
+                            <p>Aucun devis trouvé</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PANEL LATÉRAL DÉTAIL -->
+        <div class="detail-panel" id="devisDetailPanel">
+            <div class="panel-header-detail">
+                <h3 id="devisPanelTitle">Détail du devis</h3>
+                <button class="btn-icon" onclick="closeDevisPanel()">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+            <div class="panel-body-detail" id="devisPanelBody"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/devis-list.js' %}"></script>
+{% endblock %}

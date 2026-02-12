@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/list-page.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="list-page">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1>
+                <i data-lucide="message-square" style="width:28px;height:28px;"></i>
+                Factures
+            </h1>
+            <span class="record-count">{{ facture_list|length }} facture{{ facture_list|length|pluralize }}</span>
+        </div>
+        <button class="btn btn-primary" data-modal-target="#modalFacture">
+            <i data-lucide="plus" style="width:18px;height:18px;"></i>
+            Nouvelle facture
+        </button>
+    </div>
+
+    <!-- ═══ FILTRES ═══ -->
+    <div class="filters-bar">
+        <form method="get" class="filters-form">
+            <div class="filter-group">
+                <label>Type</label>
+                <select name="type" class="filter-select">
+                    <option value="">Tous</option>
+                    {% for val, label in type_choices %}
+                    <option value="{{ val }}" {% if current_filters.type == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Du</label>
+                <input type="date" name="date_from" class="filter-input" value="{{ current_filters.date_from }}">
+            </div>
+            <div class="filter-group">
+                <label>Au</label>
+                <input type="date" name="date_to" class="filter-input" value="{{ current_filters.date_to }}">
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">
+                    <i data-lucide="search" style="width:14px;height:14px;"></i> Filtrer
+                </button>
+                <a href="{% url 'factures_list' %}" class="btn-filter-reset">
+                    <i data-lucide="x" style="width:14px;height:14px;"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ═══ CONTENU : TABLE + PANEL ═══ -->
+    <div class="list-content">
+        <div class="list-table-wrapper">
+            <table class="list-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Type</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Exonération Taxe</th>
+                        <th>Montant H.T</th>
+                        <th>TVA</th>
+                        <th>Montant T.V.A</th>
+                        <th>Montant T.T.C</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in facture_list %}
+                    <tr class="facture-row" data-id="{{ f.pk }}">
+                        <td class="cell-sub">#{{ f.pk }}</td>
+                        <td class="cell-main">{{ f.type }}</td>
+                        <td class="cell-main">{{ f.client }}</td>
+                        <td class="cell-main">{{ f.date|date:"Y/m/d" }}</td>
+                        <td class="cell-sub">{{ f.taxe_exo }}</td>
+                        <td class="cell-sub">{{ f.amount_ht }}</td>
+                        <td class="cell-sub">{{ f.tva }}</td>
+                        <td class="cell-sub">{{ f.amount_tva }}</td>
+                        <td class="cell-sub">{{ f.amount_ttc }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" title="Modifier" onclick="event.stopPropagation(); openEditFactureModal({{ f.id }})">
+                                    <i data-lucide="pencil" style="width:14px;height:14px;"></i>
+                                </button>
+                                <button class="btn-icon btn-icon-delete" onclick="openDeleteFacture({{ f.id }}, '{{ f.client }}')" title="Supprimer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="13" class="empty-state">
+                            <i data-lucide="inbox" style="width:48px;height:48px;opacity:0.3;"></i>
+                            <p>Aucune facture trouvée</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ═══ PANEL LATÉRAL ═══ -->
+        <div class="detail-panel" id="factureDetailPanel">
+            <div class="panel-header">
+                <h3 id="facturePanelTitle">Détail</h3>
+                <button class="panel-close" onclick="closeFacturePanel()">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+            <div class="panel-body" id="facturePanelBody">
+                <p class="panel-placeholder">Cliquez sur une facture pour voir les détails</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<!-- Données Django → JS (AVANT les scripts) -->
+<script>
+    window.FACTURES_CLIENTS = [
+        {% for c in type %}
+        { id: {{ c.pk }}, name: "{{ c|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    window.FACTURES_TYPE_CHOICES = [
+        {% for val in client %}
+        ["{{ val|escapejs }}"]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+
+
+<!-- Script panel (inline, spécifique à cette page) -->
+<script>
+(function() {
+    const panel = document.getElementById('factureDetailPanel');
+    const panelBody = document.getElementById('facturePanelBody');
+    const panelTitle = document.getElementById('facturePanelTitle');
+
+    function loadFacturePanel(id) {
+        document.querySelectorAll('.facture-row').forEach(r => r.classList.remove('active'));
+        const row = document.querySelector(`.facture-row[data-id="${id}"]`);
+        if (row) row.classList.add('active');
+
+        panel.classList.add('open');
+        panelBody.innerHTML = `
+            <div style="display:flex;justify-content:center;padding:40px;">
+                <div class="spinner"></div>
+            </div>`;
+
+        fetch(`/api/facture/${id}/`)
+            .then(r => r.json())
+            .then(d => {
+                panelTitle.textContent = `Facture #${d.id}`;
+                renderFacturePanel(d);
+            })
+            .catch(() => {
+                panelBody.innerHTML = '<p style="padding:20px;color:#f87171;">Erreur de chargement</p>';
+            });
+    }
+
+    function renderFacturePanel(d) {
+        let html = '';
+
+        html += `
+        <div class="panel-section">
+            <div class="panel-section-title">Client</div>
+            <div class="panel-field">
+                <span class="panel-field-label">Nom</span>
+                <span class="panel-field-value">
+                    ${d.client}
+                </span>
+            </div>
+            <div class="panel-field">
+                <span class="panel-field-label">Type</span>
+                <span class="panel-field-value">
+                    <span class="type-badge">${d.type_display || d.type || '—'}</span>
+                </span>
+            </div>
+        </div>`;
+
+        html += `
+        <div class="panel-section">
+            <div class="panel-section-title">Facture</div>
+            <div class="panel-field">
+                <span class="panel-field-label">Montant H.T</span>
+                <span class="panel-field-value">
+                    ${d.amount_ht}€
+                </span>
+            </div>
+            <div class="panel-field">
+                <span class="panel-field-label">T.V.A</span>
+                <span class="panel-field-value">
+                    ${d.tva}%
+                </span>
+            </div>
+            <div class="panel-field">
+                <span class="panel-field-label">Montant T.V.A</span>
+                <span class="panel-field-value">
+                    ${d.amount_tva}€
+                </span>
+            </div>
+        </div>`;
+
+        html += `
+        <div class="panel-section">
+            <div class="panel-section-title">TOTAL</div>
+            <div class="panel-field">
+                <span class="panel-field-label">Montant T.T.C</span>
+                <span class="panel-field-value">
+                    ${d.amount_ttc}€
+                </span>
+            </div>
+        </div>`;
+
+        html += `
+        <div class="panel-section" style="margin-top:auto;padding-top:16px;border-bottom:none;">
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="openEditFactureModal(${d.id})">
+                    <i data-lucide="pencil" style="width:14px;height:14px;"></i> Modifier
+                </button>
+                <button class="btn btn-danger btn-sm" style="flex:1;" onclick="openDeleteFacture(${d.id}, '${(d.client || '').replace(/'/g, "\\'")}')">
+                    <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Supprimer
+                </button>
+            </div>
+        </div>`;
+
+        panelBody.innerHTML = html;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.closeFacturePanel = function() {
+        panel.classList.remove('open');
+        document.querySelectorAll('.facture-row').forEach(r => r.classList.remove('active'));
+    };
+
+    document.querySelectorAll('.facture-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-icon')) return;
+            loadFacturePanel(this.dataset.id);
+        });
+    });
+
+    // Fermeture globale
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            closeFacturePanel();
+        }
+    });
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+})();
+</script>
+
+
+<script src="{% static 'js/facture-list.js' %}"></script>
+{% endblock %}

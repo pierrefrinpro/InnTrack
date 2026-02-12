@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/list-page.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="list-page">
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <h1>
+                <i data-lucide="message-square" style="width:28px;height:28px;"></i>
+                Demandes
+            </h1>
+            <span class="record-count">{{ demandes|length }} demande{{ demandes|length|pluralize }}</span>
+        </div>
+        <button class="btn btn-primary" data-modal-target="#modalDemande">
+            <i data-lucide="plus" style="width:18px;height:18px;"></i>
+            Nouvelle demande
+        </button>
+    </div>
+
+    <!-- ═══ FILTRES ═══ -->
+    <div class="filters-bar">
+        <form method="get" class="filters-form">
+            <div class="filter-group">
+                <label>Client</label>
+                <select name="client" class="filter-select">
+                    <option value="">Tous les clients</option>
+                    {% for c in clients %}
+                    <option value="{{ c.pk }}" {% if current_filters.client == c.pk|stringformat:"d" %}selected{% endif %}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Statut</label>
+                <select name="status" class="filter-select">
+                    <option value="">Tous</option>
+                    {% for val, label in status_choices %}
+                    <option value="{{ val }}" {% if current_filters.status == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Type</label>
+                <select name="type" class="filter-select">
+                    <option value="">Tous</option>
+                    {% for val, label in type_choices %}
+                    <option value="{{ val }}" {% if current_filters.type == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Du</label>
+                <input type="date" name="date_from" class="filter-input" value="{{ current_filters.date_from }}">
+            </div>
+            <div class="filter-group">
+                <label>Au</label>
+                <input type="date" name="date_to" class="filter-input" value="{{ current_filters.date_to }}">
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">
+                    <i data-lucide="search" style="width:14px;height:14px;"></i> Filtrer
+                </button>
+                <a href="{% url 'demandes_list' %}" class="btn-filter-reset">
+                    <i data-lucide="x" style="width:14px;height:14px;"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ═══ CONTENU : TABLE + PANEL ═══ -->
+    <div class="list-content">
+        <div class="list-table-wrapper">
+            <table class="list-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                        <th>Description</th>
+                        <th>Créée le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in demandes %}
+                    <tr class="demande-row" data-id="{{ d.pk }}">
+                        <td class="cell-sub">#{{ d.pk }}</td>
+                        <td class="cell-main">{{ d.client }}</td>
+                        <td>
+                            <span class="type-badge">{{ d.get_type_display }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ d.status|lower }}">{{ d.get_status_display }}</span>
+                        </td>
+                        <td class="cell-sub">{{ d.description|truncatewords:8 }}</td>
+                        <td class="cell-sub">{{ d.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon" title="Modifier" onclick="event.stopPropagation(); openEditDemandeModal({{ d.pk }})">
+                                    <i data-lucide="pencil" style="width:14px;height:14px;"></i>
+                                </button>
+                                <button class="btn-icon btn-icon-delete" onclick="openDeleteDemande({{ d.id }}, '{{ d.client.firstName }} {{ d.client.lastName }}')" title="Supprimer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i data-lucide="inbox" style="width:48px;height:48px;opacity:0.3;"></i>
+                            <p>Aucune demande trouvée</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ═══ PANEL LATÉRAL ═══ -->
+        <div class="detail-panel" id="demandeDetailPanel">
+            <div class="panel-header">
+                <h3 id="demandePanelTitle">Détail</h3>
+                <button class="panel-close" onclick="closeDemandePanel()">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+            <div class="panel-body" id="demandePanelBody">
+                <p class="panel-placeholder">Cliquez sur une demande pour voir les détails</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<!-- Données Django → JS (AVANT les scripts) -->
+<script>
+    window.DEMANDE_CLIENTS = [
+        {% for c in clients %}
+        { id: {{ c.pk }}, name: "{{ c|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    window.DEMANDE_TYPE_CHOICES = [
+        {% for val, label in type_choices %}
+        ["{{ val|escapejs }}", "{{ label|escapejs }}"]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    window.DEMANDE_STATUS_CHOICES = [
+        {% for val, label in status_choices %}
+        ["{{ val|escapejs }}", "{{ label|escapejs }}"]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+
+
+<!-- Script panel (inline, spécifique à cette page) -->
+<script>
+(function() {
+    const panel = document.getElementById('demandeDetailPanel');
+    const panelBody = document.getElementById('demandePanelBody');
+    const panelTitle = document.getElementById('demandePanelTitle');
+
+    function loadDemandePanel(id) {
+        document.querySelectorAll('.demande-row').forEach(r => r.classList.remove('active'));
+        const row = document.querySelector(`.demande-row[data-id="${id}"]`);
+        if (row) row.classList.add('active');
+
+        panel.classList.add('open');
+        panelBody.innerHTML = `
+            <div style="display:flex;justify-content:center;padding:40px;">
+                <div class="spinner"></div>
+            </div>`;
+
+        fetch(`/api/demande/${id}/`)
+            .then(r => r.json())
+            .then(d => {
+                panelTitle.textContent = `Demande #${d.id}`;
+                renderDemandePanel(d);
+            })
+            .catch(() => {
+                panelBody.innerHTML = '<p style="padding:20px;color:#f87171;">Erreur de chargement</p>';
+            });
+    }
+
+    function renderDemandePanel(d) {
+        let html = '';
+
+        html += `
+        <div class="panel-section">
+            <div class="panel-section-title">Client</div>
+            <div class="panel-field">
+                <span class="panel-field-label">Nom</span>
+                <span class="panel-field-value">
+                    <a href="/clients/?highlight=${d.client_id}">${d.client_name}</a>
+                </span>
+            </div>
+            <div class="panel-field">
+                <span class="panel-field-label">Tél</span>
+                <span class="panel-field-value">${d.client_phone || '—'}</span>
+            </div>
+            <div class="panel-field">
+                <span class="panel-field-label">Email</span>
+                <span class="panel-field-value">${d.client_email || '—'}</span>
+            </div>
+        </div>`;
+
+        html += `
+        <div class="panel-section">
+            <div class="panel-section-title">Demande</div>
+            <div class="panel-field">
+                <span class="panel-field-label">Type</span>
+                <span class="panel-field-value">
+                    <span class="type-badge">${d.type_display || d.type || '—'}</span>
+                </span>
+            </div>
+            <div class="panel-field">
+                <span class="panel-field-label">Statut</span>
+                <span class="panel-field-value">
+                    <span class="status-badge status-${(d.status || '').toLowerCase().replace(/ /g,'_')}">${d.status_display || d.status}</span>
+                </span>
+            </div>
+            <div class="panel-field">
+                <span class="panel-field-label">Créée le</span>
+                <span class="panel-field-value">${d.created_at || '—'}</span>
+            </div>
+        </div>`;
+
+        if (d.description) {
+            html += `
+            <div class="panel-section">
+                <div class="panel-section-title">Description</div>
+                <div class="panel-comment">${d.description}</div>
+            </div>`;
+        }
+
+        if (d.comment) {
+            html += `
+            <div class="panel-section">
+                <div class="panel-section-title">Commentaire</div>
+                <div class="panel-comment">${d.comment}</div>
+            </div>`;
+        }
+
+        if (d.devis && d.devis.length > 0) {
+            html += `<div class="panel-section">
+                <div class="panel-section-title">Devis liés (${d.devis.length})</div>`;
+            d.devis.forEach(dv => {
+                html += `
+                <div class="panel-linked-item" onclick="window.location.href='/devis/?highlight=${dv.id}'">
+                    <div class="panel-linked-item-info">
+                        <span class="panel-linked-item-title">Devis #${dv.id}</span>
+                        <span class="panel-linked-item-sub">${dv.excpectedSentDate || 'Pas de date'} — ${dv.sent ? '✅ Envoyé' : '⏳ Non envoyé'}</span>
+                    </div>
+                    <span class="status-badge status-${(dv.status || '').toLowerCase().replace(/ /g,'_')}">${dv.status}</span>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+
+        html += `
+        <div class="panel-section" style="margin-top:auto;padding-top:16px;border-bottom:none;">
+            <div style="display:flex;gap:8px;">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="openEditDemandeModal(${d.id})">
+                    <i data-lucide="pencil" style="width:14px;height:14px;"></i> Modifier
+                </button>
+                <button class="btn btn-danger btn-sm" style="flex:1;" onclick="openDeleteDemande(${d.id}, '${(d.client_name || '').replace(/'/g, "\\'")}')">
+                    <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Supprimer
+                </button>
+            </div>
+        </div>`;
+
+        panelBody.innerHTML = html;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.closeDemandePanel = function() {
+        panel.classList.remove('open');
+        document.querySelectorAll('.demande-row').forEach(r => r.classList.remove('active'));
+    };
+
+    document.querySelectorAll('.demande-row').forEach(row => {
+        row.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-icon')) return;
+            loadDemandePanel(this.dataset.id);
+        });
+    });
+
+    // Fermeture globale
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            closeDemandePanel();
+        }
+    });
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+})();
+</script>
+
+<script src="{% static 'js/demande-list.js' %}"></script>
+{% endblock %}
